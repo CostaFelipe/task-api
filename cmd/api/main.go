@@ -1,7 +1,17 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+
+	"github.com/CostaFelipe/task-api/config"
+)
 
 func main() {
-	fmt.Println("Hello, world!")
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(cfg.DBDriver)
 }
