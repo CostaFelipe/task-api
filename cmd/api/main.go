@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/CostaFelipe/task-api/config"
+	"github.com/CostaFelipe/task-api/internal/database"
 )
 
 func main() {
@@ -13,5 +14,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(cfg.DBDriver)
+	db, err := database.NewConnection(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(db.Ping())
 }
