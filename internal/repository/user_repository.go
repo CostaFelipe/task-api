@@ -84,5 +84,13 @@ func (u *UserRepository) FindByID(ctx context.Context, id int) (*entity.User, er
 		&user.CreatedAt,
 		&user.UpdatedAt)
 
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrUserNotFound
+		}
+
+		return nil, err
+	}
+
 	return user, nil
 }
