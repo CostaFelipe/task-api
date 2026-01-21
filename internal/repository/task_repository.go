@@ -44,7 +44,7 @@ func (t *TaskRepository) Create(ctx context.Context, task *entity.Task) error {
 
 func (t *TaskRepository) FindByID(ctx context.Context, id, userID int) (*entity.Task, error) {
 
-	query := `SELECT id, title, description, completed, priority, due_date, created_at, updated_at FROM users WHERE id=? AND user_id=?`
+	query := `SELECT id, title, description, completed, priority, due_date, user_id, created_at, updated_at FROM users WHERE id=? AND user_id=?`
 
 	task := &entity.Task{}
 	var dueDate sql.NullTime
