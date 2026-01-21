@@ -4,8 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
+	"github.com/CostaFelipe/task-api/internal/dto"
 	"github.com/CostaFelipe/task-api/internal/entity"
 )
 
@@ -71,4 +73,56 @@ func (t *TaskRepository) FindByID(ctx context.Context, id, userID int) (*entity.
 	}
 
 	return task, nil
+}
+
+func (t *TaskRepository) FindAllByUserID(ctx context.Context, userId int, filter *dto.TaskFilter) (*[]entity.Task, int, error) {
+	queryBase := "FROM users WHERE user_id = ?"
+	args := []interface{}{userId}
+
+	if filter.Completed != nil {
+		queryBase += " AND completed = ?"
+		args = append(args, *filter.Completed)
+	}
+
+	if filter.Priority != nil {
+		queryBase += " AND priority = ?"
+		args = append(args, *filter.Priority)
+	}
+
+	var total int
+	queryCount := "SELECT COUNT(*) " + queryBase
+	if err := t.DB.QueryRowContext(ctx, queryCount, args...).Scan(&total); err != nil {
+		return nil, 0, err
+	}
+
+	query := fmt.Sprintf(`SELECT id, title, description, completed, due_date, priority, user_id, created_at, update_at %s ORDER BY created_at DESC LIMIT ? OFFSET = ?`, queryBase)
+
+	offset := (filter.Page - 1) * filter.Limit
+	args = append(args, filter.Limit, offset)
+
+	row, err := t.DB.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	defer row.Close()
+
+	var tasks []entity.Task
+
+	for row.Next() {
+		var task entity.Task
+		var dueTime sql.NullTime
+		if err := row.Scan(&task.ID, &task.Title, &task.Description, &task.Completed, &task.Priority, dueTime, &task.CreatedAt, &task.UpdatedAt); err != nil {
+			return nil, 0, nil
+		}
+
+		if dueTime.Valid {
+			task.DueDate = &dueTime.Time
+		}
+
+		tasks = append(tasks, task)
+	}
+
+	return &tasks, total, row.Err()
+
 }
