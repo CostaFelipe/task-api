@@ -95,7 +95,13 @@ func (t *TaskRepository) FindAllByUserID(ctx context.Context, userId int, filter
 		return nil, 0, err
 	}
 
-	query := fmt.Sprintf(`SELECT id, title, description, completed, due_date, priority, user_id, created_at, update_at %s ORDER BY created_at DESC LIMIT ? OFFSET = ?`, queryBase)
+	query := fmt.Sprintf(`
+					SELECT id, title, description, completed, priority, due_date,
+								 user_id, created_at, update_at
+					%s
+					ORDER BY created_at DESC
+					LIMIT ? OFFSET = ?`,
+		queryBase)
 
 	offset := (filter.Page - 1) * filter.Limit
 	args = append(args, filter.Limit, offset)
@@ -111,13 +117,23 @@ func (t *TaskRepository) FindAllByUserID(ctx context.Context, userId int, filter
 
 	for row.Next() {
 		var task entity.Task
-		var dueTime sql.NullTime
-		if err := row.Scan(&task.ID, &task.Title, &task.Description, &task.Completed, &task.Priority, dueTime, &task.CreatedAt, &task.UpdatedAt); err != nil {
+		var dueDate sql.NullTime
+		if err := row.Scan(
+			&task.ID,
+			&task.Title,
+			&task.Description,
+			&task.Completed,
+			&task.Priority,
+			&dueDate,
+			&task.UserID,
+			&task.CreatedAt,
+			&task.UpdatedAt,
+		); err != nil {
 			return nil, 0, nil
 		}
 
-		if dueTime.Valid {
-			task.DueDate = &dueTime.Time
+		if dueDate.Valid {
+			task.DueDate = &dueDate.Time
 		}
 
 		tasks = append(tasks, task)
