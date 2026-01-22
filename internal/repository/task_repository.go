@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/CostaFelipe/task-api/internal/dto"
@@ -141,4 +142,58 @@ func (t *TaskRepository) FindAllByUserID(ctx context.Context, userId int, filter
 
 	return &tasks, total, row.Err()
 
+}
+
+func (t *TaskRepository) Update(ctx context.Context, task *entity.Task) error {
+	var setParts []string
+	var args []interface{}
+
+	if task.Title != "" {
+		setParts = append(setParts, "title = ?")
+		args = append(args, task.Title)
+	}
+
+	if task.Description != "" {
+		setParts = append(setParts, "description = ?")
+		args = append(args, task.Description)
+	}
+
+	setParts = append(setParts, "completed = ?")
+	args = append(args, task.Completed)
+
+	if task.Priority != "" {
+		setParts = append(setParts, "priority = ?")
+		args = append(args, task.Priority)
+	}
+
+	if task.DueDate != nil {
+		setParts = append(setParts, "due_date = ?")
+		args = append(args, task.DueDate)
+	}
+
+	setParts = append(setParts, "updated_at = NOW()")
+
+	query := fmt.Sprintf(`
+	         UPDATE tasks
+					 SET %s
+					 WHERE id = ? AND user_id = ?
+	`, strings.Join(setParts, ", "))
+
+	args = append(args, task.ID, task.UserID)
+
+	result, err := t.DB.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return ErrUserNotFound
+	}
+
+	return nil
 }
