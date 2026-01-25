@@ -8,8 +8,10 @@ import (
 	"github.com/CostaFelipe/task-api/internal/entity"
 )
 
-var ErrUserNotFound = errors.New("usuário não encontrado")
-var ErrEmailExists = errors.New("email já cadastrado")
+var (
+	ErrUserNotFound = errors.New("usuário não encontrado")
+	ErrEmailExists  = errors.New("email já cadastrado")
+)
 
 type UserRepository struct {
 	DB *sql.DB
