@@ -197,3 +197,43 @@ func (t *TaskRepository) Update(ctx context.Context, task *entity.Task) error {
 
 	return nil
 }
+
+func (t *TaskRepository) Delete(ctx context.Context, id, userId int) error {
+	query := "DELETE FROM tasks WHERE id = ? AND user_id = ?"
+
+	result, err := t.DB.ExecContext(ctx, query, id, userId)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errTaskNotFound
+	}
+
+	return nil
+}
+
+func (t *TaskRepository) ToggleComplete(ctx context.Context, id, userId int) (*entity.Task, error) {
+	query := "UPDATED tasks SET completed = NOT updated_at = NOW() WHERE id = ? user_id = ?"
+
+	result, err := t.DB.ExecContext(ctx, query, id, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+
+	if rowsAffected == 0 {
+		return nil, errTaskNotFound
+	}
+
+	return t.FindByID(ctx, id, userId)
+}
