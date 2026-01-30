@@ -27,7 +27,7 @@ func NewTaskRepository(db *sql.DB) *TaskRepository {
 }
 
 func (t *TaskRepository) Create(ctx context.Context, task *entity.Task) error {
-	query := `INSERT INTO tasks (title, description, priority, due_date, user_id)`
+	query := `INSERT INTO tasks (title, description, priority, due_date, user_id) VALUES (?, ?, ?, ?, ?)`
 
 	result, err := t.DB.ExecContext(ctx, query, task.Title, task.Description, task.Priority, task.DueDate, task.UserID)
 	if err != nil {
@@ -47,7 +47,12 @@ func (t *TaskRepository) Create(ctx context.Context, task *entity.Task) error {
 
 func (t *TaskRepository) FindByID(ctx context.Context, id, userID int) (*entity.Task, error) {
 
-	query := `SELECT id, title, description, completed, priority, due_date, user_id, created_at, updated_at FROM users WHERE id=? AND user_id=?`
+	query := `
+	          SELECT id, title, description, completed, priority, due_date,
+						       user_id, created_at, updated_at
+						FROM tasks
+						WHERE id = ? AND user_id = ?
+						`
 
 	task := &entity.Task{}
 	var dueDate sql.NullTime
@@ -58,6 +63,7 @@ func (t *TaskRepository) FindByID(ctx context.Context, id, userID int) (*entity.
 		&task.Description,
 		&task.Completed,
 		dueDate,
+		&task.UserID,
 		&task.Priority,
 		&task.CreatedAt,
 		&task.UpdatedAt,
@@ -77,7 +83,7 @@ func (t *TaskRepository) FindByID(ctx context.Context, id, userID int) (*entity.
 }
 
 func (t *TaskRepository) FindAllByUserID(ctx context.Context, userId int, filter *dto.TaskFilter) (*[]entity.Task, int, error) {
-	queryBase := "FROM users WHERE user_id = ?"
+	queryBase := "FROM tasks WHERE user_id = ?"
 	args := []interface{}{userId}
 
 	if filter.Completed != nil {
@@ -98,28 +104,29 @@ func (t *TaskRepository) FindAllByUserID(ctx context.Context, userId int, filter
 
 	query := fmt.Sprintf(`
 					SELECT id, title, description, completed, priority, due_date,
-								 user_id, created_at, update_at
+								 user_id, created_at, updated_at
 					%s
 					ORDER BY created_at DESC
-					LIMIT ? OFFSET = ?`,
-		queryBase)
+					LIMIT ? OFFSET ?
+	`, queryBase)
 
 	offset := (filter.Page - 1) * filter.Limit
 	args = append(args, filter.Limit, offset)
 
-	row, err := t.DB.QueryContext(ctx, query, args...)
+	rows, err := t.DB.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	defer row.Close()
+	defer rows.Close()
 
 	var tasks []entity.Task
 
-	for row.Next() {
+	for rows.Next() {
 		var task entity.Task
 		var dueDate sql.NullTime
-		if err := row.Scan(
+
+		if err := rows.Scan(
 			&task.ID,
 			&task.Title,
 			&task.Description,
@@ -140,7 +147,7 @@ func (t *TaskRepository) FindAllByUserID(ctx context.Context, userId int, filter
 		tasks = append(tasks, task)
 	}
 
-	return &tasks, total, row.Err()
+	return &tasks, total, rows.Err()
 
 }
 

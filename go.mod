@@ -5,7 +5,6 @@ go 1.24.2
 require (
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/spf13/viper v1.21.0
-	golang.org/x/crypto v0.47.0
 )
 
 require (
