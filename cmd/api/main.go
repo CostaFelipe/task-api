@@ -7,6 +7,7 @@ import (
 
 	"github.com/CostaFelipe/task-api/config"
 	"github.com/CostaFelipe/task-api/internal/database"
+	"github.com/CostaFelipe/task-api/internal/dto"
 	"github.com/CostaFelipe/task-api/internal/repository"
 )
 
@@ -63,5 +64,24 @@ func main() {
 		fmt.Println("error ao buscar task")
 	}
 
-	fmt.Print(task)
+	fmt.Print("task:", task)
+
+	filter := &dto.TaskFilter{
+		Completed: nil,
+		Priority:  nil,
+		Page:      1,
+		Limit:     1,
+	}
+
+	tasks, total, err := taskDb.FindAllByUserID(ctx, userID, filter)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println()
+
+	fmt.Printf("Total de tarefas: %d\n", total)
+	for _, task := range *tasks {
+		fmt.Printf("Tarefa: %+v\n", task)
+	}
 }
