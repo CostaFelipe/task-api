@@ -8,6 +8,7 @@ import (
 	"github.com/CostaFelipe/task-api/config"
 	"github.com/CostaFelipe/task-api/internal/database"
 	"github.com/CostaFelipe/task-api/internal/dto"
+	"github.com/CostaFelipe/task-api/internal/entity"
 	"github.com/CostaFelipe/task-api/internal/repository"
 )
 
@@ -32,6 +33,8 @@ func main() {
 		Password: "1234567",
 	}*/
 
+	user := entity.NewUser("Jonny", "teste@gmail.com", "123456")
+
 	//dueDate := time.Now().Add(48 * time.Hour)
 
 	/*task := entity.Task{
@@ -42,14 +45,13 @@ func main() {
 		UserID:      1,
 	}*/
 
-	//userDb := repository.NewUserRepositoy(db)
+	userDb := repository.NewUserRepositoy(db)
 	taskDb := repository.NewTaskRepository(db)
 
-	/*err = userDb.Create(ctx, &user)
+	err = userDb.Create(ctx, user)
 	if err != nil {
 		fmt.Println("inserir dado ao banco deu errado")
 	}
-	*/
 
 	/*err = taskDb.Create(ctx, &task)
 	if err != nil {
