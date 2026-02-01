@@ -59,6 +59,8 @@ func main() {
 	taskID := 1
 	userID := 1
 
+	err = taskDb.Delete(ctx, 1, 1)
+
 	task, err := taskDb.FindByID(ctx, taskID, userID)
 	if err != nil {
 		fmt.Println("error ao buscar task")
