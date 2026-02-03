@@ -24,3 +24,19 @@ func TestEmptyNameUser(t *testing.T) {
 	assert.Nil(t, user)
 	assert.Equal(t, errNameEmpty, err)
 }
+
+func TestEmptyEmailUser(t *testing.T) {
+	user, err := NewUser("Joe", "", "123456")
+
+	assert.Error(t, err)
+	assert.Nil(t, user)
+	assert.Equal(t, errEmailEmpty, err)
+}
+
+func TestEmptyPasswordUser(t *testing.T) {
+	user, err := NewUser("Joe", "jhonny@doe.com", "")
+
+	assert.Error(t, err)
+	assert.Nil(t, user)
+	assert.Equal(t, errPasswordEmpty, err)
+}
