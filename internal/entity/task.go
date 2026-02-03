@@ -22,12 +22,13 @@ type Task struct {
 	UpdatedAt   time.Time  `json:"updated_at"`
 }
 
-func NewTask(title, description string, priority Priority, dueDate time.Time) (*Task, error) {
+func NewTask(title, description string, priority Priority, dueDate time.Time, userId int) (*Task, error) {
 	return &Task{
 		Title:       title,
 		Description: description,
 		Priority:    priority,
 		DueDate:     &dueDate,
+		UserID:      userId,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}, nil
