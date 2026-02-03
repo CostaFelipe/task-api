@@ -1,7 +1,14 @@
 package entity
 
 import (
+	"errors"
 	"time"
+)
+
+var (
+	errNameEmpty     = errors.New("O nome não pode ser vazio")
+	errEmailEmpty    = errors.New("O email não pode ser vazio")
+	errPasswordEmpty = errors.New("O password não pode ser vazio")
 )
 
 type User struct {
@@ -14,11 +21,35 @@ type User struct {
 }
 
 func NewUser(name, email, password string) (*User, error) {
-	return &User{
+	user := &User{
 		Name:      name,
 		Email:     email,
 		Password:  password,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-	}, nil
+	}
+
+	err := user.Validate()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (u *User) Validate() error {
+	if u.Name == "" {
+		return errNameEmpty
+	}
+
+	if u.Email == "" {
+		return errEmailEmpty
+	}
+
+	if u.Password == "" {
+		return errPasswordEmpty
+	}
+
+	return nil
 }
