@@ -17,26 +17,25 @@ func TestNewUser(t *testing.T) {
 	assert.NotZero(t, user.UpdatedAt)
 }
 
-func TestEmptyNameUser(t *testing.T) {
-	user, err := NewUser("", "jhonny@doe.com", "123456")
+func TestUserValidation(t *testing.T) {
+	t.Run("Empty Name", func(t *testing.T) {
+		user, err := NewUser("", "jhonny@doe.com", "123456")
+		assert.Error(t, err)
+		assert.Nil(t, user)
+		assert.Equal(t, errNameEmpty, err)
+	})
 
-	assert.Error(t, err)
-	assert.Nil(t, user)
-	assert.Equal(t, errNameEmpty, err)
-}
+	t.Run("Empty Email", func(t *testing.T) {
+		user, err := NewUser("Joe", "", "123456")
+		assert.Error(t, err)
+		assert.Nil(t, user)
+		assert.Equal(t, errEmailEmpty, err)
+	})
 
-func TestEmptyEmailUser(t *testing.T) {
-	user, err := NewUser("Joe", "", "123456")
-
-	assert.Error(t, err)
-	assert.Nil(t, user)
-	assert.Equal(t, errEmailEmpty, err)
-}
-
-func TestEmptyPasswordUser(t *testing.T) {
-	user, err := NewUser("Joe", "jhonny@doe.com", "")
-
-	assert.Error(t, err)
-	assert.Nil(t, user)
-	assert.Equal(t, errPasswordEmpty, err)
+	t.Run("Empty Password", func(t *testing.T) {
+		user, err := NewUser("Joe", "jhonny@doe.com", "")
+		assert.Error(t, err)
+		assert.Nil(t, user)
+		assert.Equal(t, errPasswordEmpty, err)
+	})
 }
