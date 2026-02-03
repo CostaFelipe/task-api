@@ -13,12 +13,12 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func NewUser(name, email, password string) *User {
+func NewUser(name, email, password string) (*User, error) {
 	return &User{
 		Name:      name,
 		Email:     email,
 		Password:  password,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-	}
+	}, nil
 }
