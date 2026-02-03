@@ -1,6 +1,9 @@
 package entity
 
-import "time"
+import (
+	"errors"
+	"time"
+)
 
 type Priority string
 
@@ -8,6 +11,12 @@ const (
 	PriorityLow    Priority = "low"
 	PriorityMedium Priority = "medium"
 	PriorityHigh   Priority = "high"
+)
+
+var (
+	errTitleIsRequired       = errors.New("title is required")
+	errDescriptionIsRequired = errors.New("description is required")
+	errIDIsRequired          = errors.New("id is required")
 )
 
 type Task struct {
