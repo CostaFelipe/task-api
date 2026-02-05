@@ -1,19 +1,17 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 
 	"github.com/CostaFelipe/task-api/config"
 	"github.com/CostaFelipe/task-api/internal/database"
-	"github.com/CostaFelipe/task-api/internal/dto"
-	"github.com/CostaFelipe/task-api/internal/repository"
+	"github.com/CostaFelipe/task-api/internal/middleware"
 )
 
 func main() {
 	cfg, err := config.LoadConfig()
-	ctx := context.Background()
+	//ctx := context.Background()
 
 	if err != nil {
 		log.Fatal(err)
@@ -45,7 +43,7 @@ func main() {
 	}*/
 
 	//userDb := repository.NewUserRepositoy(db)
-	taskDb := repository.NewTaskRepository(db)
+	//taskDb := repository.NewTaskRepository(db)
 
 	/*err = userDb.Create(ctx, user)
 	if err != nil {
@@ -57,17 +55,17 @@ func main() {
 		fmt.Println("erro ao inserir task no banco deu errado")
 	}*/
 
-	taskID := 1
-	userID := 1
+	//taskID := 1
+	//userID := 1
 
 	//err = taskDb.Delete(ctx, 1, 1)
 
-	task, err := taskDb.FindByID(ctx, taskID, userID)
+	/*task, err := taskDb.FindByID(ctx, taskID, userID)
 	if err != nil {
 		fmt.Println("error ao buscar task")
-	}
+	}*/
 
-	fmt.Print("task:", task)
+	/*fmt.Print("task:", task)
 
 	filter := &dto.TaskFilter{
 		Completed: nil,
@@ -80,11 +78,20 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	*/
 
-	fmt.Println()
+	/*fmt.Println()
 
 	fmt.Printf("Total de tarefas: %d\n", total)
 	for _, task := range *tasks {
 		fmt.Printf("Tarefa: %+v\n", task)
 	}
+	*/
+	cmd := middleware.NewAuthMiddleware(*cfg)
+	token, err := cmd.GenerateToken(1, "jdoe@gmail.com")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Print(token)
 }
