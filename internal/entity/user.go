@@ -3,6 +3,8 @@ package entity
 import (
 	"errors"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -35,6 +37,12 @@ func NewUser(name, email, password string) (*User, error) {
 		return nil, err
 	}
 
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+
+	user.Password = string(hash)
 	return user, nil
 }
 

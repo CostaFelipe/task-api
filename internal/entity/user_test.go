@@ -13,6 +13,7 @@ func TestNewUser(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "John Doe", user.Name)
 	assert.Equal(t, "jhonny@doe.com", user.Email)
+	assert.NotEmpty(t, user.Password)
 	assert.NotZero(t, user.CreatedAt)
 	assert.NotZero(t, user.UpdatedAt)
 }
@@ -33,7 +34,7 @@ func TestUserValidation(t *testing.T) {
 	})
 
 	t.Run("Empty Password", func(t *testing.T) {
-		user, err := NewUser("Joe", "jhonny@doe.com", "")
+		user, err := NewUser("JTest", "teste@doe.com", "")
 		assert.Error(t, err)
 		assert.Nil(t, user)
 		assert.Equal(t, errPasswordEmpty, err)
