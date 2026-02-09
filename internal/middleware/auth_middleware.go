@@ -80,6 +80,15 @@ func (h *AuthMiddleware) Authenticate(next http.Handler) http.Handler {
 	})
 }
 
+func (h *AuthMiddleware) GetUserIDFromContext(ctx context.Context) int {
+	userID, ok := ctx.Value(UserIDKey).(int)
+	if !ok {
+		return 0
+	}
+
+	return userID
+}
+
 func extractToken(authHeader string) (string, error) {
 	parts := strings.Split(authHeader, " ")
 	if len(parts) != 2 || parts[0] != "Bearer" {
