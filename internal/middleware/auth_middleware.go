@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -48,17 +50,16 @@ func (h *AuthMiddleware) Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("authentication")
 		if authHeader == "" {
-			http.Error(w, `{"error": "dados inválidos"}`, http.StatusUnauthorized)
+			respondWithError(w, http.StatusUnauthorized, "Token não fornecido")
 			return
 		}
 
-		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			http.Error(w, `{"error": "formato do token inválido"}`, http.StatusUnauthorized)
+		tokenString, err := extractToken(authHeader)
+		if err != nil {
+			respondWithError(w, http.StatusUnauthorized, err.Error())
 			return
 		}
 
-		tokenString := parts[1]
 		token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
 			return []byte(h.jwtConfig.JWTSecret), nil
 		})
@@ -77,4 +78,19 @@ func (h *AuthMiddleware) Authenticate(next http.Handler) http.Handler {
 		ctx := context.WithValue(r.Context(), UserIDKey, claims.UserID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func extractToken(authHeader string) (string, error) {
+	parts := strings.Split(authHeader, " ")
+	if len(parts) != 2 || parts[0] != "Bearer" {
+		return "", fmt.Errorf("formato do token inválido")
+	}
+
+	return parts[1], nil
+}
+
+func respondWithError(w http.ResponseWriter, code int, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(map[string]string{"error": message})
 }
