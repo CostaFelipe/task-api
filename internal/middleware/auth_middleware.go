@@ -48,7 +48,7 @@ func (h *AuthMiddleware) GenerateToken(userId int, email string) (string, error)
 
 func (h *AuthMiddleware) Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authHeader := r.Header.Get("authentication")
+		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
 			respondWithError(w, http.StatusUnauthorized, "Token não fornecido")
 			return
