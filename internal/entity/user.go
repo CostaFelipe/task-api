@@ -22,6 +22,13 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type UserResponse struct {
+	ID      int       `json:"id"`
+	Name    string    `json:"name"`
+	Email   string    `json:"email"`
+	Created time.Time `json:"created_at"`
+}
+
 func NewUser(name, email, password string) (*User, error) {
 	user := &User{
 		Name:      name,
@@ -60,4 +67,13 @@ func (u *User) Validate() error {
 	}
 
 	return nil
+}
+
+func (u *User) ToResponse() UserResponse {
+	return UserResponse{
+		ID:      u.ID,
+		Name:    u.Name,
+		Email:   u.Email,
+		Created: u.CreatedAt,
+	}
 }
