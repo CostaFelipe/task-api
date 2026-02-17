@@ -97,6 +97,18 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	responseJSON(w, http.StatusOK, response)
 }
 
+func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
+	id := h.authMiddleware.GetUserIDFromContext(r.Context())
+
+	user, err := h.userRepo.FindByID(r.Context(), id)
+	if err != nil {
+		responseJSON(w, http.StatusNotFound, map[string]string{"error": "Usuário não encontrado"})
+		return
+	}
+
+	responseJSON(w, http.StatusOK, user.ToResponse())
+}
+
 func responseJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-type", "application/json")
 	w.WriteHeader(status)
