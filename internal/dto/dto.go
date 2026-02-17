@@ -19,3 +19,8 @@ type AuthResponse struct {
 	Token string              `json:"token"`
 	User  entity.UserResponse `json:"user"`
 }
+
+type UserLoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
