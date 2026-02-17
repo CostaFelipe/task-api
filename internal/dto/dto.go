@@ -2,13 +2,6 @@ package dto
 
 import "github.com/CostaFelipe/task-api/internal/entity"
 
-type TaskFilter struct {
-	Completed *bool
-	Priority  *entity.Priority
-	Page      int
-	Limit     int
-}
-
 type UserRegisterRequest struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
@@ -23,4 +16,18 @@ type AuthResponse struct {
 type UserLoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type TaskFilter struct {
+	Completed *bool
+	Priority  *entity.Priority
+	Page      int
+	Limit     int
+}
+
+type CreateTaskRequest struct {
+	Title       string          `json:"title"`
+	Description string          `json:"description"`
+	Priority    entity.Priority `json:"priority"`
+	DueDate     string          `json:"due_date,omitempty"`
 }
