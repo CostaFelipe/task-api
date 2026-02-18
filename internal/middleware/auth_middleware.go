@@ -80,7 +80,7 @@ func (h *AuthMiddleware) Authenticate(next http.Handler) http.Handler {
 	})
 }
 
-func (h *AuthMiddleware) GetUserIDFromContext(ctx context.Context) int {
+func GetUserIDFromContext(ctx context.Context) int {
 	userID, ok := ctx.Value(UserIDKey).(int)
 	if !ok {
 		return 0

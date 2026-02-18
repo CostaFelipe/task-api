@@ -12,8 +12,7 @@ import (
 )
 
 type TaskHandler struct {
-	taskRepo       *repository.TaskRepository
-	authMiddleware *middleware.AuthMiddleware
+	taskRepo *repository.TaskRepository
 }
 
 func NewTaskHandler(taskRepo *repository.TaskRepository) *TaskHandler {
@@ -22,9 +21,9 @@ func NewTaskHandler(taskRepo *repository.TaskRepository) *TaskHandler {
 	}
 }
 
-func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 
-	userId := h.authMiddleware.GetUserIDFromContext(r.Context())
+	userId := middleware.GetUserIDFromContext(r.Context())
 
 	var taskDto dto.CreateTaskRequest
 	if err := json.NewDecoder(r.Body).Decode(&taskDto); err != nil {
@@ -69,4 +68,8 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseJSON(w, http.StatusCreated, task)
+}
+
+func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
+
 }
