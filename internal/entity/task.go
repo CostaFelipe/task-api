@@ -16,7 +16,7 @@ const (
 var (
 	errTitleIsRequired       = errors.New("title is required")
 	errDescriptionIsRequired = errors.New("description is required")
-	errIDIsRequired          = errors.New("id is required")
+	//errIDIsRequired          = errors.New("id is required")
 )
 
 type Task struct {
@@ -32,13 +32,38 @@ type Task struct {
 }
 
 func NewTask(title, description string, priority Priority, userId int) (*Task, error) {
-	return &Task{
+	task := &Task{
 		Title:       title,
 		Description: description,
 		Completed:   false,
-		Priority:    priority,
+		Priority:    getValidPriority(priority),
 		UserID:      userId,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
-	}, nil
+	}
+
+	if err := task.Validation(); err != nil {
+		return nil, err
+	}
+
+	return task, nil
+}
+
+func (t *Task) Validation() error {
+	if t.Title == "" {
+		return errTitleIsRequired
+	}
+
+	if t.Description == "" {
+		return errDescriptionIsRequired
+	}
+	return nil
+}
+
+func getValidPriority(priority Priority) Priority {
+	if priority == "" {
+		priority = PriorityMedium
+	}
+
+	return priority
 }

@@ -98,7 +98,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
-	id := h.authMiddleware.GetUserIDFromContext(r.Context())
+	id := middleware.GetUserIDFromContext(r.Context())
 
 	user, err := h.userRepo.FindByID(r.Context(), id)
 	if err != nil {

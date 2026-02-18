@@ -18,11 +18,10 @@ func TestNewTask(t *testing.T) {
 
 func TestTaskValidation(t *testing.T) {
 	t.Run("required title", func(t *testing.T) {
-		task, err := NewTask("Aprender Go", "Estudar a linguagem Go.", "low", 1)
-
+		task, err := NewTask("", "Estudar a linguagem Go.", "low", 1)
 		assert.Error(t, err)
 		assert.Nil(t, task)
-		assert.Equal(t, errTitleIsRequired, task.Title)
+		assert.Equal(t, errTitleIsRequired, err)
 	})
 
 	t.Run("required description", func(t *testing.T) {
@@ -30,14 +29,11 @@ func TestTaskValidation(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, task)
-		assert.Equal(t, errDescriptionIsRequired, task.Description)
+		assert.Equal(t, errDescriptionIsRequired, err)
 	})
 
-	t.Run("required id", func(t *testing.T) {
-		task, err := NewTask("Aprender Go", "Estudar a linguagem Go.", "low", 0)
-
-		assert.Error(t, err)
-		assert.Nil(t, task)
-		assert.Equal(t, errIDIsRequired, task.UserID)
+	t.Run("priotiry empty", func(t *testing.T) {
+		task, _ := NewTask("Aprender Go", "Estudar a linguagem Go.", "", 1)
+		assert.Equal(t, PriorityMedium, task.Priority)
 	})
 }

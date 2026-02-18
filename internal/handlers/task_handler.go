@@ -31,21 +31,6 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if taskDto.Title == "" {
-		responseJSON(w, http.StatusBadRequest, map[string]string{"error": "título vazio"})
-		return
-	}
-
-	if taskDto.Description == "" {
-		responseJSON(w, http.StatusBadRequest, map[string]string{"error": "description vazio"})
-		return
-	}
-
-	priority := taskDto.Priority
-	if priority == "" {
-		priority = entity.PriorityMedium
-	}
-
 	task, err := entity.NewTask(taskDto.Title, taskDto.Description, taskDto.Priority, userId)
 	if err != nil {
 		responseJSON(w, http.StatusBadRequest, map[string]string{"error": "erro ao criar task"})
