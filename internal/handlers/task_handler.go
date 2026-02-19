@@ -2,13 +2,16 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/CostaFelipe/task-api/internal/dto"
 	"github.com/CostaFelipe/task-api/internal/entity"
 	"github.com/CostaFelipe/task-api/internal/middleware"
 	"github.com/CostaFelipe/task-api/internal/repository"
+	"github.com/go-chi/chi/v5"
 )
 
 type TaskHandler struct {
@@ -56,5 +59,23 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
+	userId := middleware.GetUserIDFromContext(r.Context())
 
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		responseJSON(w, http.StatusInternalServerError, map[string]string{"error": "ID inválido"})
+		return
+	}
+
+	task, err := h.taskRepo.FindByID(r.Context(), id, userId)
+	if err != nil {
+		if errors.Is(err, repository.ErrUserNotFound) {
+			responseJSON(w, http.StatusInternalServerError, map[string]string{"error": "task não encontrada"})
+			return
+		}
+		responseJSON(w, http.StatusInternalServerError, map[string]string{"error": "erro ao buscar task"})
+		return
+	}
+
+	responseJSON(w, http.StatusOK, task)
 }
