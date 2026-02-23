@@ -79,3 +79,49 @@ func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	responseJSON(w, http.StatusOK, task)
 }
+
+func (h *TaskHandler) GetAll(w http.ResponseWriter, r *http.Request) {
+	userId := middleware.GetUserIDFromContext(r.Context())
+
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	if page < 1 {
+		page = 1
+	}
+
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	if limit < 1 || limit > 100 {
+		limit = 10
+	}
+
+	filter := dto.TaskFilter{
+		Page:  page,
+		Limit: limit,
+	}
+
+	if completStr := r.URL.Query().Get("completed"); completStr != "" {
+		completed := completStr == "true"
+		filter.Completed = &completed
+	}
+
+	if priorityStr := r.URL.Query().Get("priority"); priorityStr != "" {
+		priorityStr := entity.Priority(priorityStr)
+		filter.Priority = &priorityStr
+	}
+
+	tasks, total, err := h.taskRepo.FindAllByUserID(r.Context(), userId, &filter)
+	if err != nil {
+		responseJSON(w, http.StatusInternalServerError, map[string]string{"err": "erro ao buscar tasks"})
+		return
+	}
+
+	response := map[string]interface{}{
+		"data":        tasks,
+		"total":       total,
+		"page":        page,
+		"limit":       limit,
+		"total_pages": (total + limit - 1) / limit,
+	}
+
+	responseJSON(w, http.StatusOK, response)
+
+}
