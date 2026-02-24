@@ -159,7 +159,6 @@ func (t *TaskRepository) Update(ctx context.Context, task *entity.Task) error {
 		setParts = append(setParts, "title = ?")
 		args = append(args, task.Title)
 	}
-
 	if task.Description != "" {
 		setParts = append(setParts, "description = ?")
 		args = append(args, task.Description)
@@ -172,7 +171,6 @@ func (t *TaskRepository) Update(ctx context.Context, task *entity.Task) error {
 		setParts = append(setParts, "priority = ?")
 		args = append(args, task.Priority)
 	}
-
 	if task.DueDate != nil {
 		setParts = append(setParts, "due_date = ?")
 		args = append(args, task.DueDate)
@@ -187,21 +185,18 @@ func (t *TaskRepository) Update(ctx context.Context, task *entity.Task) error {
 	`, strings.Join(setParts, ", "))
 
 	args = append(args, task.ID, task.UserID)
-
 	result, err := t.DB.ExecContext(ctx, query, args...)
+
 	if err != nil {
 		return err
 	}
-
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return err
 	}
-
 	if rowsAffected == 0 {
 		return ErrUserNotFound
 	}
-
 	return nil
 }
 
