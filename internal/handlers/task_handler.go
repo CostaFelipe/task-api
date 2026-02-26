@@ -143,3 +143,25 @@ func (h *TaskHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (h *TaskHandler) ToggleComplete(w http.ResponseWriter, r *http.Request) {
+	userId := middleware.GetUserIDFromContext(r.Context())
+	taskId, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		responseJSON(w, http.StatusBadRequest, map[string]string{"error": "id inválda"})
+		return
+	}
+
+	task, err := h.taskRepo.ToggleComplete(r.Context(), taskId, userId)
+	if err != nil {
+		if errors.Is(err, repository.ErrTaskNotFound) {
+			responseJSON(w, http.StatusNotFound, map[string]string{"error": "task não encontrada"})
+			return
+		}
+
+		responseJSON(w, http.StatusInternalServerError, map[string]string{"error": "Erro ao atualizar tarefa"})
+		return
+	}
+
+	responseJSON(w, http.StatusOK, task)
+}
