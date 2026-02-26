@@ -126,6 +126,69 @@ func (h *TaskHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
+	userId := middleware.GetUserIDFromContext(r.Context())
+	taskId, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		responseJSON(w, http.StatusBadRequest, map[string]string{"error": "id inválido"})
+		return
+	}
+
+	task, err := h.taskRepo.FindByID(r.Context(), taskId, userId)
+	if err != nil {
+		if errors.Is(err, repository.ErrTaskNotFound) {
+			responseJSON(w, http.StatusNotFound, map[string]string{"error": "task não encontrada"})
+			return
+		}
+
+		responseJSON(w, http.StatusInternalServerError, map[string]string{"error": "erro ao buscar tarefa"})
+		return
+	}
+
+	var req dto.UpdateTask
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		responseJSON(w, http.StatusBadRequest, map[string]string{"error": "dados inválidos"})
+	}
+	if req.Title != nil {
+		task.Title = *req.Title
+	}
+
+	if req.Description != nil {
+		task.Description = *req.Description
+	}
+
+	if req.Completed != nil {
+		task.Completed = *req.Completed
+	}
+
+	if req.Priority != nil {
+		task.Priority = *req.Priority
+	}
+
+	if req.DueDate != nil {
+		if *req.DueDate != "" {
+			task.DueDate = nil
+		} else {
+			dueDate, err := time.Parse("2006-02-01", *req.DueDate)
+			if err != nil {
+				responseJSON(w, http.StatusBadRequest, map[string]string{"error": "formato due date inválido"})
+				return
+			}
+
+			task.DueDate = &dueDate
+		}
+	}
+
+	if err := h.taskRepo.Update(r.Context(), task); err != nil {
+		responseJSON(w, http.StatusInternalServerError, map[string]string{"error": "Erro ao atualizar tasks"})
+		return
+	}
+
+	taskUpdate, _ := h.taskRepo.FindByID(r.Context(), taskId, userId)
+	responseJSON(w, http.StatusOK, taskUpdate)
+
+}
+
 func (h *TaskHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	userId := middleware.GetUserIDFromContext(r.Context())
 	taskId, err := strconv.Atoi(chi.URLParam(r, "id"))

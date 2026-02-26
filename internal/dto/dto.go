@@ -31,3 +31,11 @@ type CreateTaskRequest struct {
 	Priority    entity.Priority `json:"priority"`
 	DueDate     string          `json:"due_date,omitempty"`
 }
+
+type UpdateTask struct {
+	Title       *string          `json:"title,omitempty"`
+	Description *string          `json:"description,omitempty"`
+	Completed   *bool            `json:"completed,omitempty"`
+	Priority    *entity.Priority `json:"priority,omitempty"`
+	DueDate     *string          `json:"due_date,omitempty"`
+}
