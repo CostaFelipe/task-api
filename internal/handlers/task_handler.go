@@ -128,7 +128,7 @@ func (h *TaskHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 
 func (h *TaskHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	userId := middleware.GetUserIDFromContext(r.Context())
-	taskId, err := strconv.Atoi(r.URL.Query().Get("id"))
+	taskId, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		responseJSON(w, http.StatusBadRequest, map[string]string{"error": "id inválido"})
 		return
