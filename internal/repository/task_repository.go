@@ -221,8 +221,9 @@ func (t *TaskRepository) Delete(ctx context.Context, id, userId int) error {
 }
 
 func (t *TaskRepository) ToggleComplete(ctx context.Context, id, userId int) (*entity.Task, error) {
-	query := `UPDATE tasks SET completed = NOT completed,
-	          updated_at = NOW() WHERE id = ? user_id = ?`
+	query := `UPDATE tasks
+	          SET completed = NOT completed, updated_at = NOW()
+						WHERE id = ? AND user_id = ?`
 
 	result, err := t.DB.ExecContext(ctx, query, id, userId)
 	if err != nil {
