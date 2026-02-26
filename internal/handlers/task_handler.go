@@ -125,3 +125,21 @@ func (h *TaskHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	responseJSON(w, http.StatusOK, response)
 
 }
+
+func (h *TaskHandler) Delete(w http.ResponseWriter, r *http.Request) {
+	userId := middleware.GetUserIDFromContext(r.Context())
+	taskId, err := strconv.Atoi(r.URL.Query().Get("id"))
+	if err != nil {
+		responseJSON(w, http.StatusBadRequest, map[string]string{"error": "id inválido"})
+		return
+	}
+
+	if err := h.taskRepo.Delete(r.Context(), userId, taskId); err != nil {
+		if errors.Is(err, repository.ErrTaskNotFound) {
+			responseJSON(w, http.StatusInternalServerError, map[string]string{"error": "tarefa não encontrada"})
+			return
+		}
+		responseJSON(w, http.StatusInternalServerError, map[string]string{"error": "erro ao deletar tarefa"})
+		return
+	}
+}

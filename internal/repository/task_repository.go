@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	errTaskNotFound = errors.New("Task not found!")
+	ErrTaskNotFound = errors.New("Task not found!")
 )
 
 type TaskRepository struct {
@@ -71,7 +71,7 @@ func (t *TaskRepository) FindByID(ctx context.Context, id, userID int) (*entity.
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, errTaskNotFound
+			return nil, ErrTaskNotFound
 		}
 	}
 
@@ -214,7 +214,7 @@ func (t *TaskRepository) Delete(ctx context.Context, id, userId int) error {
 	}
 
 	if rowsAffected == 0 {
-		return errTaskNotFound
+		return ErrTaskNotFound
 	}
 
 	return nil
@@ -234,7 +234,7 @@ func (t *TaskRepository) ToggleComplete(ctx context.Context, id, userId int) (*e
 	}
 
 	if rowsAffected == 0 {
-		return nil, errTaskNotFound
+		return nil, ErrTaskNotFound
 	}
 
 	return t.FindByID(ctx, id, userId)
