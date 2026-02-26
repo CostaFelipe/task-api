@@ -169,7 +169,7 @@ func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 		if *req.DueDate != "" {
 			task.DueDate = nil
 		} else {
-			dueDate, err := time.Parse("2006-02-01", *req.DueDate)
+			dueDate, err := time.Parse("2006-01-02", *req.DueDate)
 			if err != nil {
 				responseJSON(w, http.StatusBadRequest, map[string]string{"error": "formato due date inválido"})
 				return
