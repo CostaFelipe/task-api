@@ -77,3 +77,12 @@ func (u *User) ToResponse() UserResponse {
 		Created: u.CreatedAt,
 	}
 }
+
+func (u *User) ValidatePassword(password string) error {
+	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

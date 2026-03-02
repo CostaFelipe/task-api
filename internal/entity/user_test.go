@@ -39,4 +39,11 @@ func TestUserValidation(t *testing.T) {
 		assert.Nil(t, user)
 		assert.Equal(t, errPasswordEmpty, err)
 	})
+
+	t.Run("Validation Password", func(t *testing.T) {
+		user, err := NewUser("John Doe", "jhonny@doe.com", "123456")
+		assert.Nil(t, err)
+		err = user.ValidatePassword("123456")
+		assert.NoError(t, err)
+	})
 }
