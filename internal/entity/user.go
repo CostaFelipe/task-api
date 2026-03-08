@@ -30,17 +30,7 @@ type UserResponse struct {
 }
 
 func NewUser(name, email, password string) (*User, error) {
-	user := &User{
-		Name:      name,
-		Email:     email,
-		Password:  password,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-
-	err := user.Validate()
-
-	if err != nil {
+	if err := Validate(name, email, password); err != nil {
 		return nil, err
 	}
 
@@ -49,20 +39,26 @@ func NewUser(name, email, password string) (*User, error) {
 		return nil, err
 	}
 
-	user.Password = string(hash)
+	user := &User{
+		Name:      name,
+		Email:     email,
+		Password:  string(hash),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
 	return user, nil
 }
 
-func (u *User) Validate() error {
-	if u.Name == "" {
+func Validate(name, email, password string) error {
+	if name == "" {
 		return errNameEmpty
 	}
 
-	if u.Email == "" {
+	if email == "" {
 		return errEmailEmpty
 	}
 
-	if u.Password == "" {
+	if password == "" {
 		return errPasswordEmpty
 	}
 
