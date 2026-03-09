@@ -80,7 +80,7 @@ func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	responseJSON(w, http.StatusOK, task)
 }
 
-func (h *TaskHandler) GetAll(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) GetTasks(w http.ResponseWriter, r *http.Request) {
 	userId := middleware.GetUserIDFromContext(r.Context())
 
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
