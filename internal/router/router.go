@@ -25,6 +25,16 @@ func NewRouter(authHandler *handlers.AuthHandler, taskHandler *handlers.TaskHand
 		w.Write([]byte(`{"status": "OK", "message": "API is running"}`))
 	})
 
+	r.Route("/auth", func(r chi.Router) {
+		r.Post("/register", authHandler.Register)
+		r.Post("/login", authHandler.Login)
+
+		r.Group(func(r chi.Router) {
+			r.Use(authMiddleware.Authenticate)
+			r.Get("/me", authHandler.Me)
+		})
+	})
+
 	return r
 }
 
