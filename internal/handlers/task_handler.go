@@ -11,6 +11,8 @@ import (
 	"github.com/CostaFelipe/task-api/internal/entity"
 	"github.com/CostaFelipe/task-api/internal/middleware"
 	"github.com/CostaFelipe/task-api/internal/repository"
+	"github.com/CostaFelipe/task-api/internal/util"
+	"github.com/CostaFelipe/task-api/pkg/responses"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -30,20 +32,20 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	var taskDto dto.CreateTaskRequest
 	if err := json.NewDecoder(r.Body).Decode(&taskDto); err != nil {
-		responseJSON(w, http.StatusBadRequest, map[string]string{"error": "dados inválidos"})
+		util.ResponseJSON(w, http.StatusBadRequest, responses.ErrorResponse{Error: "dados inválidos"})
 		return
 	}
 
 	task, err := entity.NewTask(taskDto.Title, taskDto.Description, taskDto.Priority, userId)
 	if err != nil {
-		responseJSON(w, http.StatusBadRequest, map[string]string{"error": "erro ao criar task"})
+		util.ResponseJSON(w, http.StatusBadRequest, responses.ErrorResponse{Error: "erro ao criar task"})
 		return
 	}
 
 	if taskDto.DueDate == "" {
 		dueDate, err := time.Parse("2006-01-02", taskDto.DueDate)
 		if err != nil {
-			responseJSON(w, http.StatusBadRequest, map[string]string{"error": "Formato inválido"})
+			util.ResponseJSON(w, http.StatusBadRequest, responses.ErrorResponse{Error: "Formato inválido"})
 			return
 		}
 
@@ -51,11 +53,11 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = h.taskRepo.Create(r.Context(), task); err != nil {
-		responseJSON(w, http.StatusInternalServerError, map[string]string{"error": "Erro ao criar tarefa"})
+		util.ResponseJSON(w, http.StatusInternalServerError, responses.ErrorResponse{Error: "erro ao criar task"})
 		return
 	}
 
-	responseJSON(w, http.StatusCreated, task)
+	util.ResponseJSON(w, http.StatusCreated, task)
 }
 
 func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {

@@ -9,6 +9,8 @@ import (
 	"github.com/CostaFelipe/task-api/internal/entity"
 	"github.com/CostaFelipe/task-api/internal/middleware"
 	"github.com/CostaFelipe/task-api/internal/repository"
+	"github.com/CostaFelipe/task-api/internal/util"
+	"github.com/CostaFelipe/task-api/pkg/responses"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -27,28 +29,28 @@ func NewAuthHandler(userRepo *repository.UserRepository, authMiddleware *middlew
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var userDto dto.UserRegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&userDto); err != nil {
-		responseJSON(w, http.StatusBadRequest, map[string]string{"error": "dados inválidos"})
+		util.ResponseJSON(w, http.StatusBadRequest, responses.ErrorResponse{Error: "dados inválidos"})
 		return
 	}
 
 	user, err := entity.NewUser(userDto.Name, userDto.Email, userDto.Password)
 	if err != nil {
-		responseJSON(w, http.StatusBadRequest, map[string]string{"error": "dados inválidos"})
+		util.ResponseJSON(w, http.StatusBadRequest, responses.ErrorResponse{Error: "dados inválidos"})
 		return
 	}
 
 	if err = h.userRepo.Create(r.Context(), user); err != nil {
 		if errors.Is(err, repository.ErrEmailExists) {
-			responseJSON(w, http.StatusBadRequest, map[string]string{"error": "Email já cadastrado"})
+			util.ResponseJSON(w, http.StatusBadRequest, responses.ErrorResponse{Error: "Email já cadastrado"})
 			return
 		}
-		responseJSON(w, http.StatusBadRequest, map[string]string{"error": "erro ao criar o usuário"})
+		util.ResponseJSON(w, http.StatusBadRequest, responses.ErrorResponse{Error: "erro ao criar usuário"})
 		return
 	}
 
 	token, err := h.authMiddleware.GenerateToken(user.ID, user.Email)
 	if err != nil {
-		responseJSON(w, http.StatusBadRequest, map[string]string{"error": "Erro ao gerar token"})
+		util.ResponseJSON(w, http.StatusBadRequest, responses.ErrorResponse{Error: "erro ao gerar token"})
 		return
 	}
 
@@ -57,35 +59,35 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		User:  user.ToResponse(),
 	}
 
-	responseJSON(w, http.StatusCreated, response)
+	util.ResponseJSON(w, http.StatusCreated, response)
 }
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var userDto dto.UserLoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&userDto); err != nil {
-		responseJSON(w, http.StatusBadRequest, map[string]string{"error": "dados inválidas"})
+		util.ResponseJSON(w, http.StatusBadRequest, responses.ErrorResponse{Error: "dados inválidos"})
 		return
 	}
 
 	user, err := h.userRepo.FindByEmail(r.Context(), userDto.Email)
 	if err != nil {
 		if errors.Is(err, repository.ErrUserNotFound) {
-			responseJSON(w, http.StatusUnauthorized, map[string]string{"error": "usuário não encontrado"})
+			util.ResponseJSON(w, http.StatusNotFound, responses.ErrorResponse{Error: "usuário não encontrado"})
 			return
 		}
-		responseJSON(w, http.StatusUnauthorized, map[string]string{"error": "erro ao encontrar usuário"})
+		util.ResponseJSON(w, http.StatusUnauthorized, responses.ErrorResponse{Error: "erro ao encontrar usuário"})
 		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(userDto.Password))
 	if err != nil {
-		responseJSON(w, http.StatusUnauthorized, map[string]string{"error": "senha errada"})
+		util.ResponseJSON(w, http.StatusUnauthorized, responses.ErrorResponse{Error: "senha errada"})
 		return
 	}
 
 	token, err := h.authMiddleware.GenerateToken(user.ID, user.Email)
 	if err != nil {
-		responseJSON(w, http.StatusUnauthorized, map[string]string{"error": "erro ao gerar token"})
+		util.ResponseJSON(w, http.StatusUnauthorized, responses.ErrorResponse{Error: "erro ao gerar token"})
 		return
 	}
 
@@ -94,7 +96,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		User:  user.ToResponse(),
 	}
 
-	responseJSON(w, http.StatusOK, response)
+	util.ResponseJSON(w, http.StatusOK, response)
 }
 
 func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
@@ -102,15 +104,9 @@ func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.userRepo.FindByID(r.Context(), id)
 	if err != nil {
-		responseJSON(w, http.StatusNotFound, map[string]string{"error": "Usuário não encontrado"})
+		util.ResponseJSON(w, http.StatusNotFound, responses.ErrorResponse{Error: "usuário não encontrado"})
 		return
 	}
 
-	responseJSON(w, http.StatusOK, user.ToResponse())
-}
-
-func responseJSON(w http.ResponseWriter, status int, data interface{}) {
-	w.Header().Set("Content-type", "application/json")
-	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(data)
+	util.ResponseJSON(w, http.StatusOK, user.ToResponse())
 }
