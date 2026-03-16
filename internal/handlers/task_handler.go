@@ -65,21 +65,21 @@ func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		responseJSON(w, http.StatusInternalServerError, map[string]string{"error": "ID inválido"})
+		util.ResponseJSON(w, http.StatusInternalServerError, responses.ErrorResponse{Error: "ID inválido"})
 		return
 	}
 
 	task, err := h.taskRepo.FindByID(r.Context(), id, userId)
 	if err != nil {
 		if errors.Is(err, repository.ErrUserNotFound) {
-			responseJSON(w, http.StatusInternalServerError, map[string]string{"error": "task não encontrada"})
+			util.ResponseJSON(w, http.StatusInternalServerError, responses.ErrorResponse{Error: "task não encontrada"})
 			return
 		}
-		responseJSON(w, http.StatusInternalServerError, map[string]string{"error": "erro ao buscar task"})
+		util.ResponseJSON(w, http.StatusInternalServerError, responses.ErrorResponse{Error: "erro ao buscar tasl"})
 		return
 	}
 
-	responseJSON(w, http.StatusOK, task)
+	util.ResponseJSON(w, http.StatusOK, task)
 }
 
 func (h *TaskHandler) GetTasks(w http.ResponseWriter, r *http.Request) {
@@ -112,7 +112,7 @@ func (h *TaskHandler) GetTasks(w http.ResponseWriter, r *http.Request) {
 
 	tasks, total, err := h.taskRepo.FindAllByUserID(r.Context(), userId, &filter)
 	if err != nil {
-		responseJSON(w, http.StatusInternalServerError, map[string]string{"err": "erro ao buscar tasks"})
+		util.ResponseJSON(w, http.StatusInternalServerError, responses.ErrorResponse{Error: "erro ao buscar tasks"})
 		return
 	}
 
@@ -124,32 +124,32 @@ func (h *TaskHandler) GetTasks(w http.ResponseWriter, r *http.Request) {
 		"total_pages": (total + limit - 1) / limit,
 	}
 
-	responseJSON(w, http.StatusOK, response)
-
+	util.ResponseJSON(w, http.StatusOK, response)
 }
 
 func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 	userId := middleware.GetUserIDFromContext(r.Context())
 	taskId, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		responseJSON(w, http.StatusBadRequest, map[string]string{"error": "id inválido"})
+		util.ResponseJSON(w, http.StatusBadRequest, responses.ErrorResponse{Error: "id inválido"})
 		return
 	}
 
 	task, err := h.taskRepo.FindByID(r.Context(), taskId, userId)
 	if err != nil {
 		if errors.Is(err, repository.ErrTaskNotFound) {
-			responseJSON(w, http.StatusNotFound, map[string]string{"error": "task não encontrada"})
+			util.ResponseJSON(w, http.StatusNotFound, responses.ErrorResponse{Error: "task não encontrada"})
 			return
 		}
 
-		responseJSON(w, http.StatusInternalServerError, map[string]string{"error": "erro ao buscar tarefa"})
+		util.ResponseJSON(w, http.StatusInternalServerError, responses.ErrorResponse{Error: "erro ao buscar tarefa"})
 		return
 	}
 
 	var req dto.UpdateTask
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		responseJSON(w, http.StatusBadRequest, map[string]string{"error": "dados inválidos"})
+		util.ResponseJSON(w, http.StatusBadRequest, responses.ErrorResponse{Error: "dados inválidos"})
+		return
 	}
 	if req.Title != nil {
 		task.Title = *req.Title
@@ -173,7 +173,7 @@ func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 		} else {
 			dueDate, err := time.Parse("2006-01-02", *req.DueDate)
 			if err != nil {
-				responseJSON(w, http.StatusBadRequest, map[string]string{"error": "formato due date inválido"})
+				util.ResponseJSON(w, http.StatusBadRequest, responses.ErrorResponse{Error: "formato due date inválido"})
 				return
 			}
 
@@ -182,12 +182,12 @@ func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.taskRepo.Update(r.Context(), task); err != nil {
-		responseJSON(w, http.StatusInternalServerError, map[string]string{"error": "Erro ao atualizar tasks"})
+		util.ResponseJSON(w, http.StatusInternalServerError, responses.ErrorResponse{Error: "Erro ao atualizar tasks"})
 		return
 	}
 
 	taskUpdate, _ := h.taskRepo.FindByID(r.Context(), taskId, userId)
-	responseJSON(w, http.StatusOK, taskUpdate)
+	util.ResponseJSON(w, http.StatusOK, taskUpdate)
 
 }
 
@@ -195,16 +195,16 @@ func (h *TaskHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	userId := middleware.GetUserIDFromContext(r.Context())
 	taskId, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		responseJSON(w, http.StatusBadRequest, map[string]string{"error": "id inválido"})
+		util.ResponseJSON(w, http.StatusBadRequest, responses.ErrorResponse{Error: "id inválido"})
 		return
 	}
 
 	if err := h.taskRepo.Delete(r.Context(), userId, taskId); err != nil {
 		if errors.Is(err, repository.ErrTaskNotFound) {
-			responseJSON(w, http.StatusInternalServerError, map[string]string{"error": "tarefa não encontrada"})
+			util.ResponseJSON(w, http.StatusInternalServerError, responses.ErrorResponse{Error: "task não encontrada"})
 			return
 		}
-		responseJSON(w, http.StatusInternalServerError, map[string]string{"error": "erro ao deletar tarefa"})
+		util.ResponseJSON(w, http.StatusInternalServerError, responses.ErrorResponse{Error: "erro ao deletar tarefa"})
 		return
 	}
 }
@@ -213,20 +213,19 @@ func (h *TaskHandler) ToggleComplete(w http.ResponseWriter, r *http.Request) {
 	userId := middleware.GetUserIDFromContext(r.Context())
 	taskId, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		responseJSON(w, http.StatusBadRequest, map[string]string{"error": "id inválda"})
+		util.ResponseJSON(w, http.StatusBadRequest, responses.ErrorResponse{Error: "id inválida"})
 		return
 	}
 
 	task, err := h.taskRepo.ToggleComplete(r.Context(), taskId, userId)
 	if err != nil {
 		if errors.Is(err, repository.ErrTaskNotFound) {
-			responseJSON(w, http.StatusNotFound, map[string]string{"error": "task não encontrada"})
+			util.ResponseJSON(w, http.StatusNotFound, responses.ErrorResponse{Error: "task não encontrada"})
 			return
 		}
-
-		responseJSON(w, http.StatusInternalServerError, map[string]string{"error": "Erro ao atualizar tarefa"})
+		util.ResponseJSON(w, http.StatusInternalServerError, responses.ErrorResponse{Error: "Erro ao atualizar tarefa"})
 		return
 	}
 
-	responseJSON(w, http.StatusOK, task)
+	util.ResponseJSON(w, http.StatusOK, task)
 }
