@@ -45,7 +45,6 @@ func NewTask(title, description string, priority Priority, userId int) (*Task, e
 	if err := task.Validation(); err != nil {
 		return nil, err
 	}
-
 	return task, nil
 }
 
@@ -64,6 +63,5 @@ func getValidPriority(priority Priority) Priority {
 	if priority == "" {
 		priority = PriorityMedium
 	}
-
 	return priority
 }
