@@ -67,9 +67,8 @@ func (u *UserRepository) FindByEmail(ctx context.Context, email string) (*entity
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrUserNotFound
 		}
-		return nil, err
+		return nil, errors.New("erro ao processar solicitação")
 	}
-
 	return user, nil
 }
 
