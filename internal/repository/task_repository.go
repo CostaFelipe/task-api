@@ -73,6 +73,7 @@ func (t *TaskRepository) FindByID(ctx context.Context, id, userID int) (*entity.
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrTaskNotFound
 		}
+		return nil, errors.New("erro ao processar solicitação")
 	}
 
 	if dueDate.Valid {
