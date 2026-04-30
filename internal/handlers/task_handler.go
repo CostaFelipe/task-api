@@ -27,7 +27,6 @@ func NewTaskHandler(taskRepo *repository.TaskRepository) *TaskHandler {
 }
 
 func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
-
 	userId := middleware.GetUserIDFromContext(r.Context())
 
 	var taskDto dto.CreateTaskRequest
