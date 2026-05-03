@@ -11,7 +11,6 @@ import (
 	"github.com/CostaFelipe/task-api/internal/repository"
 	"github.com/CostaFelipe/task-api/internal/util"
 	"github.com/CostaFelipe/task-api/pkg/responses"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthHandler struct {
@@ -79,7 +78,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(userDto.Password))
+	err = user.ValidatePassword(userDto.Password)
 	if err != nil {
 		util.ResponseJSON(w, http.StatusUnauthorized, responses.ErrorResponse{Error: "senha errada"})
 		return
