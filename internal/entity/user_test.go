@@ -23,21 +23,21 @@ func TestUserValidation(t *testing.T) {
 		user, err := NewUser("", "jhonny@doe.com", "123456")
 		assert.Error(t, err)
 		assert.Nil(t, user)
-		assert.Equal(t, errNameEmpty, err)
+		assert.Equal(t, ErrNameIsRequired, err)
 	})
 
 	t.Run("Empty Email", func(t *testing.T) {
 		user, err := NewUser("Joe", "", "123456")
 		assert.Error(t, err)
 		assert.Nil(t, user)
-		assert.Equal(t, errEmailEmpty, err)
+		assert.Equal(t, ErrEmailIsRequired, err)
 	})
 
 	t.Run("Empty Password", func(t *testing.T) {
 		user, err := NewUser("JTest", "teste@doe.com", "")
 		assert.Error(t, err)
 		assert.Nil(t, user)
-		assert.Equal(t, errPasswordEmpty, err)
+		assert.Equal(t, ErrPasswordIsRequired, err)
 	})
 
 	t.Run("Validation Password", func(t *testing.T) {

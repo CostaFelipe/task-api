@@ -8,9 +8,11 @@ import (
 )
 
 var (
-	errNameEmpty     = errors.New("O nome não pode ser vazio")
-	errEmailEmpty    = errors.New("O email não pode ser vazio")
-	errPasswordEmpty = errors.New("O password não pode ser vazio")
+	ErrIdIsRequired       = errors.New("id is required")
+	ErrIdInvalid          = errors.New("invalid id")
+	ErrNameIsRequired     = errors.New("name is required")
+	ErrEmailIsRequired    = errors.New("email is required")
+	ErrPasswordIsRequired = errors.New("password is required")
 )
 
 type User struct {
@@ -51,15 +53,15 @@ func NewUser(name, email, password string) (*User, error) {
 
 func Validate(name, email, password string) error {
 	if name == "" {
-		return errNameEmpty
+		return ErrNameIsRequired
 	}
 
 	if email == "" {
-		return errEmailEmpty
+		return ErrEmailIsRequired
 	}
 
 	if password == "" {
-		return errPasswordEmpty
+		return ErrPasswordIsRequired
 	}
 
 	return nil
