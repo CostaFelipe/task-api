@@ -74,7 +74,7 @@ func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 			util.ResponseJSON(w, http.StatusInternalServerError, responses.ErrorResponse{Error: "task não encontrada"})
 			return
 		}
-		util.ResponseJSON(w, http.StatusInternalServerError, responses.ErrorResponse{Error: "erro ao buscar tasl"})
+		util.ResponseJSON(w, http.StatusInternalServerError, responses.ErrorResponse{Error: "erro ao buscar task"})
 		return
 	}
 
