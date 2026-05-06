@@ -71,7 +71,7 @@ func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	task, err := h.taskRepo.FindByID(r.Context(), id, userId)
 	if err != nil {
 		if errors.Is(err, repository.ErrTaskNotFound) {
-			util.ResponseJSON(w, http.StatusInternalServerError, responses.ErrorResponse{Error: "task não encontrada"})
+			util.ResponseJSON(w, http.StatusNotFound, responses.ErrorResponse{Error: "task não encontrada"})
 			return
 		}
 		util.ResponseJSON(w, http.StatusInternalServerError, responses.ErrorResponse{Error: "erro ao buscar task"})
