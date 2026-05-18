@@ -10,7 +10,7 @@ import (
 )
 
 func NewConnection(cfg *config.Config) (*sql.DB, error) {
-	dsn := DataBaseURL(cfg)
+	dsn := config.DataBaseURL(cfg)
 
 	db, err := sql.Open(cfg.DBDriver, dsn)
 	if err != nil {
@@ -26,14 +26,4 @@ func NewConnection(cfg *config.Config) (*sql.DB, error) {
 	}
 
 	return db, nil
-}
-
-func DataBaseURL(cfg *config.Config) string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true&loc=Local",
-		cfg.DBUser,
-		cfg.DBPassword,
-		cfg.DBHost,
-		cfg.DBPort,
-		cfg.DBName,
-	)
 }
